@@ -27,6 +27,50 @@ void mostrarClientes(nodo *);
 //definicion de los arboles
 nodo *arbol =NULL;
 
+
+//definicion de lista enlazada para almacenar proveedores
+class nodos {
+ 	//dESDE OTRA CLASE SE PUEDEN acceder a estos atributos
+    public:
+     nodos(char nom[25], char dire[25], char produ[25], nodos *sig, nodos *ante)
+     {
+        strcpy(nombre,nom);
+        strcpy(direccion,dire);
+        strcpy(producto,produ);
+        siguiente = sig;
+        anterior=ante;
+     }
+     //Desde otra clase/funcion no de puede acceder a los atributos o metodos privados.
+    private:
+     char nombre[25];
+     char direccion[25];
+     char producto[25];
+     nodos *siguiente;
+     nodos *anterior;
+ 
+  //Una funcion externa puede acceder a los atributos privados.
+    friend class lista;
+};
+
+//PROTOTIPOS
+ void mostrar();
+ nodos *crearnodo(char[25],char[25],char[25],nodos *,nodos *);
+ nodos *lista_proveedor = NULL; //incializa el arbol en NULL
+ typedef nodos *pnodos;
+
+class lista {
+   public:
+   	void insertar_prove(nodos *&,char[25],char[25],char[25],nodos *);
+    void mostrar_proveedores(nodos *); //funcion para mostrar el arbol con recursividad
+   
+   private:
+    
+ };
+
+
+
+
+
 //FUNCION MAIN
 int main(){
 	
@@ -84,7 +128,29 @@ void menu(){
 				insertarCliente(arbol,id,nit,nombre,direccion,NULL);
 				system("pause");
 				break;
-			}
+			}//cierra case 3
+			case 3:{
+				system("cls");
+				cout<<"			MOSTRANDO PROVEEDORES"<<endl<<endl;
+				lista Lista2;
+				Lista2.mostrar_proveedores(lista_proveedor);
+				system("pause");
+				break;
+			}//cierra el case 3
+			case 4:{
+				system("cls");
+				char name[25], addres[25], prod[25];
+				cout<<"		INGRESANDO PROVEEDORES"<<endl;
+				fflush(stdin);
+				cout<<endl<<"ingrese nombre: " ; gets(name);
+				cout<<"ingrese direccion: "; gets(addres);
+				cout<<"ingrese producto: " ; gets(prod);
+				lista Lista; //una nueva instancia de la clase lista
+				//Lista.insertar_prove(lista_proveedor,name,addres,prod,NULL);
+				Lista.insertar_prove(lista_proveedor,name,addres,prod,NULL);
+				system("pause");
+				break;
+			}//cierra 	case 4
 				
 		}//cierra el switch
 		
@@ -134,7 +200,7 @@ void mostrarClientes(nodo *arbol){
 	}
 	else{
 		mostrarClientes(arbol->der);
-		cout<<"identificar: "<<arbol->id<<endl;
+		cout<<"identificador: "<<arbol->id<<endl;
 		cout<<"NIT: "<<arbol->nit<<endl;
 		cout<<"NOMBRE: "<<arbol->nombre<<endl;
 		cout<<"DIRECCION: "<<arbol->direccion<<endl<<endl;
@@ -143,3 +209,38 @@ void mostrarClientes(nodo *arbol){
 }
 
 
+//funcion para crear proveedores
+ nodos *crearnodo(char nom[25],char dire[25],char pro[25],nodos *anterior){
+      nodos *n_nodo= new nodos(nom,dire,pro,NULL,anterior);
+      return n_nodo;
+ }
+
+//funcion para insertar nodos en el arbol
+ void lista::insertar_prove(nodos *&lista_proveedor,char nombr[25],char direc[25],char produc[25],nodos *anterior){
+ 
+      if(lista_proveedor==NULL)
+      {
+             nodos *n_nodo=crearnodo(nombr,direc,produc,anterior);
+             lista_proveedor=n_nodo;
+      }else //si el arbol tiene uno o mas nodos
+      {
+   			insertar_prove(lista_proveedor->siguiente,nombr,direc,produc,lista_proveedor);
+          	//arbol->anterior=arbol->siguiente;
+      }
+ }
+ 
+ //funcon para mostrar el arbol con recursividad
+ void lista::mostrar_proveedores(nodos *lista_proveedor){
+      if(lista_proveedor== NULL)
+      {
+                 return ;
+      }
+      else
+      {
+		cout<<"NOMBRE: " <<lista_proveedor->nombre<<endl;      
+		cout<<"DIRECCION: "<<lista_proveedor->direccion<<endl;
+		cout<<"PRODUCTO: "<<lista_proveedor->producto<<endl<<endl;
+ 		mostrar_proveedores(lista_proveedor->siguiente);
+         
+    }
+}
