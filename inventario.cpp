@@ -6,6 +6,19 @@
 #include <string.h>
 using namespace std;
 
+//estructuras paa productos
+struct productos{
+	int id;
+	char codigo[15];
+	char descripcion[25];
+	float precio_compra=0.00;
+	float precio_venta=0.00;
+	int existencia;
+	productos *derecha;
+	productos *izquierda;
+	productos *padre;
+};
+
 //estructuras para arbol de clientes
 struct nodo{
 	int id;
@@ -23,11 +36,16 @@ nodo *nuevonodo(int,int,char,char,nodo *); //funcion para crear nodos nuevos
 void insertarCliente(nodo *&,int,int,char[25],char[25],nodo *);
 void mostrarClientes(nodo *);
 
+//prototipos para productos
+void insertarProductos(productos *&,int,char[25],char[25],float,float,int,productos *);
+void mostrarProductos(productos *);
+nodo *nuevoproducto(int,char[25],char[25],float,float,int, productos *); //funcion para crear nodos nuevos
 
-//definicion de los arboles
+//definicion de los arboles BINARIOS
 nodo *arbol =NULL;
+productos *arbolProductos = NULL;
 
-
+//****************************************************************************************************************************
 //definicion de lista enlazada para almacenar proveedores
 class nodos {
  	//dESDE OTRA CLASE SE PUEDEN acceder a estos atributos
@@ -47,17 +65,14 @@ class nodos {
      char producto[25];
      nodos *siguiente;
      nodos *anterior;
- 
   //Una funcion externa puede acceder a los atributos privados.
     friend class lista;
 };
-
 //PROTOTIPOS
  void mostrar();
  nodos *crearnodo(char[25],char[25],char[25],nodos *,nodos *);
  nodos *lista_proveedor = NULL; //incializa el arbol en NULL
  typedef nodos *pnodos;
-
 class lista {
    public:
    	void insertar_prove(nodos *&,char[25],char[25],char[25],nodos *);
@@ -67,7 +82,7 @@ class lista {
     
  };
 
-
+//**************************************************************************************************************
 
 
 
@@ -105,7 +120,7 @@ void menu(){
 			case 1:{
 				//mostrar los clientes
 				system("cls");
-				cout<<" 		MOSTANDO CLIENTES EXISTENTES"<<endl;
+				cout<<" 		MOSTRANDO CLIENTES EXISTENTES"<<endl;
 				mostrarClientes(arbol);
 				system("pause");
 				break;
@@ -151,7 +166,35 @@ void menu(){
 				system("pause");
 				break;
 			}//cierra 	case 4
+			
+			case 7: {
+				system("cls")	;
+				cout<<"		MOSTRANDO PRODUCTOS EXISTENTES"<<endl<<endl;
+				mostrarProductos(arbolProductos);
+				system("pause");
+				break;
+			}//cierra el case 7
+			
+			case 8: {
+				//se utilizara la funcion rand para generar numeros aleatorios
+				srand(time(NULL)); //inicializa la semilla en 0
+				int id=rand()%201;
 				
+				system("cls");
+				char codigo[25],descripcion[25];
+				float precio_c =0.00 ,precio_v =0.00;
+				int existencia;
+				cout<<"			INGRESANDO PRODUCTOS "<<endl<<endl;
+				cout<<"id: "<<id<<endl;
+				cout<<"ingrese codigo de producto: "; fflush(stdin); gets(codigo);
+				cout<<"ingrese descripcion: "; gets(descripcion);
+				cout<<"ingrese precio de compra: "; cin>>precio_c;
+				cout<<"ingrese precio de venta: "; cin>>precio_v;
+				cout<<"ingese existencia: "; cin>>existencia;
+				insertarProductos(arbolProductos,id,codigo,descripcion,precio_c,precio_v,existencia,NULL);
+				system("pause");
+				break;
+			}//cierra el case 8	
 		}//cierra el switch
 		
 	}while(opcion!=9);
@@ -244,3 +287,53 @@ void mostrarClientes(nodo *arbol){
          
     }
 }
+
+//funciones para almacenar productos
+
+productos *nuevoProducto(int id, char codigo[25], char descri[25], float precio_c, float precio_v, int exis, productos *padre){	
+    productos *nuevo_producto = new productos();
+	nuevo_producto->id = id;
+	strcpy(nuevo_producto->codigo, codigo);
+	strcpy(nuevo_producto->descripcion,descri);
+	nuevo_producto->precio_compra = precio_c;
+	nuevo_producto->precio_venta = precio_v;
+	nuevo_producto->existencia = exis;
+	nuevo_producto->derecha = NULL;
+	nuevo_producto->izquierda = NULL;
+	nuevo_producto->padre = padre;
+	
+	return nuevo_producto;
+}
+
+void insertarProductos(productos *& arbolProductos, int id, char codigo[15], char descri[25],float precio_c, float precio_v,int exis,productos *padre){
+	if(arbolProductos == NULL){
+		productos *nuevo_producto = nuevoProducto(id,codigo,descri,precio_c, precio_v,exis,padre);
+		arbolProductos = nuevo_producto;
+	}else{
+		int valorRaiz = arbolProductos->id; //Obtenemos el valor de la raiz
+		if(id < valorRaiz){ //Si el elemento es menor a la raiz, insertamos en izq
+			insertarProductos(arbolProductos->izquierda,id,codigo,descri,precio_c,precio_v,exis,arbolProductos);
+		}
+		else{//Si el elemento es mayor a la raiz, insertamos en der
+			insertarProductos(arbolProductos->derecha,id,codigo,descri,precio_c,precio_v,exis,arbolProductos);
+		}	
+	}
+}
+
+//Funcion para mostrar el arbol productos
+void mostrarProductos(productos *arbolProductos){
+	if(arbolProductos == NULL){ //Si el arbol esta vacio
+		return;
+	}
+	else{
+		mostrarProductos(arbolProductos->derecha);
+		cout<<endl<<"ID_PRODUCTO: "<<arbolProductos->id<<endl;
+		cout<<"CODIGO_PRODUCTO: "<<arbolProductos->codigo<<endl;
+		cout<<"DESCRIPCION: "<<arbolProductos->descripcion<<endl;
+		cout<<"PRECIO COMPRA: "<<arbolProductos->precio_compra<<endl;
+		cout<<"PRECIO VENTA: "<<arbolProductos->precio_venta<<endl;
+		cout<<"EXISTENCIA: "<<arbolProductos->existencia<<endl;
+		mostrarProductos(arbolProductos->izquierda);
+	}
+}
+
